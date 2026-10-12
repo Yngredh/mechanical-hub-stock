@@ -91,5 +91,6 @@ class StockDomainTests {
         materialId = materialA,
         quantity = quantity,
         createdAt = Instant.ofEpochSecond(createdAt),
+        sagaTransactionId = UUID.randomUUID(),
     )
 }

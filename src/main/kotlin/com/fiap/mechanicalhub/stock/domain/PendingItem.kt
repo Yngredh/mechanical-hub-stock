@@ -9,6 +9,7 @@ data class PendingItem(
     val materialId: UUID,
     val quantity: Int,
     val createdAt: Instant,
+    val sagaTransactionId: UUID,
 )
 
 /** Reserva feita a um item pendente; [remaining] e o que continua pendente (0 = item resolvido). */

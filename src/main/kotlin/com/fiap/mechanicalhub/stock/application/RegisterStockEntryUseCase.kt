@@ -17,6 +17,7 @@ class RegisterStockEntryUseCase(
     private val stock: StockRepository,
     private val locks: StockLocks,
     private val idempotency: IdempotencyStore,
+    private val outbox: OutboxPublisher,
 ) {
     @Transactional
     fun execute(command: RegisterStockEntryCommand): RegisterStockEntryOutcome {
@@ -53,7 +54,12 @@ class RegisterStockEntryUseCase(
             stock.recordMovement(command.materialId, orderId, StockMovementTypeEnum.RESERVED, item.reserved)
             if (item.resolved) {
                 stock.deletePendingItem(item.item.id)
-                if (locks.countPendingItems(orderId) == 0) completedOrders += orderId
+                if (locks.countPendingItems(orderId) == 0) {
+                    completedOrders += orderId
+                    outbox.publish(
+                        StockReserved(item.item.sagaTransactionId, orderId, stock.reservedMaterials(orderId)),
+                    )
+                }
             } else {
                 stock.reducePendingItem(item.item.id, item.remaining)
             }

@@ -1,5 +1,6 @@
 package com.fiap.mechanicalhub.stock.application
 
+import com.fiap.mechanicalhub.stock.domain.MaterialQuantity
 import com.fiap.mechanicalhub.stock.domain.PendingItem
 import com.fiap.mechanicalhub.stock.domain.StockMovementTypeEnum
 import com.fiap.mechanicalhub.stock.domain.StockStatusEnum
@@ -31,6 +32,9 @@ interface StockRepository {
     fun reducePendingItem(itemId: UUID, newQuantity: Int)
 
     fun deletePendingItem(itemId: UUID)
+
+    /** Soma das movimentacoes RESERVED da ordem, por material. */
+    fun reservedMaterials(orderId: UUID): List<MaterialQuantity>
 
     fun balances(): List<MaterialBalance>
 

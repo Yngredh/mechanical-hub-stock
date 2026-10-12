@@ -3,9 +3,11 @@ package com.fiap.mechanicalhub.stock.infrastructure
 import com.fiap.mechanicalhub.stock.application.MaterialBalance
 import com.fiap.mechanicalhub.stock.application.StockMovementView
 import com.fiap.mechanicalhub.stock.application.StockRepository
+import com.fiap.mechanicalhub.stock.domain.MaterialQuantity
 import com.fiap.mechanicalhub.stock.domain.PendingItem
 import com.fiap.mechanicalhub.stock.domain.StockMovementTypeEnum
 import com.fiap.mechanicalhub.stock.domain.StockStatusEnum
+import com.fiap.mechanicalhub.stock.domain.sumByMaterial
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import java.util.UUID
@@ -48,7 +50,8 @@ class JdbcStockRepository(private val jdbc: JdbcTemplate) : StockRepository {
 
     override fun pendingItems(materialId: UUID): List<PendingItem> =
         jdbc.query(
-            "SELECT id, service_order_id, material_id, quantity, created_at FROM stock_pending_items " +
+            "SELECT id, service_order_id, saga_transaction_id, material_id, quantity, created_at " +
+                "FROM stock_pending_items " +
                 "WHERE material_id = ? ORDER BY created_at, id",
             { rs, _ ->
                 PendingItem(
@@ -57,10 +60,20 @@ class JdbcStockRepository(private val jdbc: JdbcTemplate) : StockRepository {
                     materialId = rs.getObject("material_id", UUID::class.java),
                     quantity = rs.getInt("quantity"),
                     createdAt = rs.getTimestamp("created_at").toInstant(),
+                    sagaTransactionId = rs.getObject("saga_transaction_id", UUID::class.java),
                 )
             },
             materialId,
         )
+
+    override fun reservedMaterials(orderId: UUID): List<MaterialQuantity> =
+        jdbc
+            .query(
+                "SELECT material_id, quantity FROM stock_movements " +
+                    "WHERE service_order_id = ? AND movement_type = 'RESERVED'",
+                { rs, _ -> MaterialQuantity(rs.getObject("material_id", UUID::class.java), rs.getInt("quantity")) },
+                orderId,
+            ).sumByMaterial()
 
     override fun reducePendingItem(itemId: UUID, newQuantity: Int) {
         jdbc.update("UPDATE stock_pending_items SET quantity = ? WHERE id = ?", newQuantity, itemId)

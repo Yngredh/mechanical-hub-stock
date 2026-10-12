@@ -12,7 +12,7 @@ class RegisterStockEntryUseCaseTests {
     private val stock = mockk<StockRepository>(relaxed = true)
     private val locks = mockk<StockLocks>(relaxed = true)
     private val idempotency = mockk<IdempotencyStore>(relaxed = true)
-    private val useCase = RegisterStockEntryUseCase(stock, locks, idempotency)
+    private val useCase = RegisterStockEntryUseCase(stock, locks, idempotency, mockk(relaxed = true))
     private val materialId = UUID.randomUUID()
 
     @Test

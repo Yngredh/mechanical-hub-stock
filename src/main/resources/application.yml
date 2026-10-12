@@ -16,3 +16,8 @@ stock:
   queues:
     commands: ${STOCK_COMMANDS_QUEUE_URL:mechanical-hub-stock-commands.fifo}
     orchestrator-events: ${ORCHESTRATOR_EVENTS_QUEUE_URL:mechanical-hub-orchestrator-events.fifo}
+  outbox:
+    relay:
+      enabled: ${OUTBOX_RELAY_ENABLED:true}
+      interval-ms: 1000
+      batch-size: 100

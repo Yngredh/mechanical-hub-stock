@@ -127,6 +127,11 @@ class StockApiTests {
 
         assertEquals(201, response.statusCode())
         assertTrue(response.body().contains(firstOrder.toString()))
+        val events = jdbc.queryForList("SELECT event_type, payload::text AS payload FROM outbox_events WHERE aggregate_id = ?", firstOrder)
+        assertEquals(1, events.size)
+        assertEquals("stockReserved", events[0]["event_type"])
+        assertTrue((events[0]["payload"] as String).contains(materialId.toString()))
+        assertEquals(0, jdbc.queryForObject("SELECT count(*) FROM outbox_events WHERE aggregate_id = ?", Int::class.java, secondOrder))
         assertEquals(0, available(materialId))
         assertEquals(
             2,
