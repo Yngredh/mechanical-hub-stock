@@ -1,7 +1,18 @@
 spring:
   application:
     name: mechanical-hub-stock
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/stock}
+    username: ${DB_USER:stock}
+    password: ${DB_PASSWORD:secret}
   cloud:
     aws:
       region:
         static: ${AWS_REGION:us-east-1}
+      sqs:
+        endpoint: ${AWS_SQS_ENDPOINT:}
+
+stock:
+  queues:
+    commands: ${STOCK_COMMANDS_QUEUE_URL:mechanical-hub-stock-commands.fifo}
+    orchestrator-events: ${ORCHESTRATOR_EVENTS_QUEUE_URL:mechanical-hub-orchestrator-events.fifo}
