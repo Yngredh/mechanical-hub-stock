@@ -56,8 +56,15 @@ class StockCommandConsumer(
     @Suppress("TooGenericExceptionCaught")
     fun consume(message: ReceivedCommand, acknowledge: () -> Unit, changeVisibility: (Int) -> Unit) {
         try {
-            val outcome = processor.process(parser.parse(message.body))
-            log.info("Comando {} processado: {}", message.messageId, outcome)
+            val command = parser.parse(message.body)
+            withLogContext(
+                LogContext.ORDER_ID to command.orderId.toString(),
+                LogContext.TRANSACTION_ID to command.transactionId.toString(),
+                LogContext.EVENT_ID to parser.eventIdOrNull(message.body),
+            ) {
+                val outcome = processor.process(command)
+                log.info("Comando {} processado: {}", message.messageId, outcome)
+            }
         } catch (e: Exception) {
             if (e.isPermanent()) {
                 deadLetter(message, e, acknowledge, changeVisibility)

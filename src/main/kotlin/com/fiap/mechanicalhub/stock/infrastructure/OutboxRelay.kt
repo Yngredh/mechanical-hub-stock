@@ -91,11 +91,17 @@ class OutboxRelay(
         var sent = 0
         for (row in rows) {
             try {
-                sender.send(row)
+                withLogContext(
+                    LogContext.ORDER_ID to row.orderId.toString(),
+                    LogContext.EVENT_ID to row.eventId.toString(),
+                ) { sender.send(row) }
             } catch (
                 @Suppress("TooGenericExceptionCaught") ex: Exception,
             ) {
-                log.warn("Falha ao enviar evento {} do outbox", row.eventId, ex)
+                withLogContext(
+                    LogContext.ORDER_ID to row.orderId.toString(),
+                    LogContext.EVENT_ID to row.eventId.toString(),
+                ) { log.warn("Falha ao enviar evento {} do outbox", row.eventId, ex) }
                 jdbc.update(
                     "UPDATE outbox_events SET attempts = attempts + 1, last_error = ? WHERE sequence = ?",
                     ex.message ?: ex.javaClass.name,

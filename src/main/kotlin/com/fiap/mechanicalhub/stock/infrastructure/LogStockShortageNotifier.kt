@@ -13,11 +13,17 @@ class LogStockShortageNotifier : StockShortageNotifier {
 
     override fun notifyShortage(orderId: UUID, transactionId: UUID, shortages: List<ShortageItem>) {
         val items = shortages.joinToString("; ") { "${it.materialName} (faltam ${it.missingQuantity})" }
-        log.info(
-            "Enviando email com assunto: [ALERTA ESTOQUE] Pendencia de estoque na ordem {} e corpo: " +
-                "sem disponibilidade para os materiais: {}. Providencie a reposicao.",
-            orderId,
-            items,
-        )
+        withLogContext(
+            LogContext.ORDER_ID to orderId.toString(),
+            LogContext.TRANSACTION_ID to transactionId.toString(),
+            LogContext.MATERIAL_ID to shortages.joinToString(",") { it.materialId.toString() },
+        ) {
+            log.info(
+                "Enviando email com assunto: [ALERTA ESTOQUE] Pendencia de estoque na ordem {} e corpo: " +
+                    "sem disponibilidade para os materiais: {}. Providencie a reposicao.",
+                orderId,
+                items,
+            )
+        }
     }
 }
