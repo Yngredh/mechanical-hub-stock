@@ -18,6 +18,7 @@ data class StockMovementView(
 )
 
 /** Porta de persistencia do estoque. Escritas exigem transacao ativa. */
+@Suppress("TooManyFunctions")
 interface StockRepository {
     fun materialExists(materialId: UUID): Boolean
 
@@ -32,6 +33,11 @@ interface StockRepository {
     fun reducePendingItem(itemId: UUID, newQuantity: Int)
 
     fun deletePendingItem(itemId: UUID)
+
+    /** Soma de service_materials dos reparos, por material. */
+    fun requiredMaterials(repairIds: Collection<UUID>): List<MaterialQuantity>
+
+    fun insertPendingItem(orderId: UUID, sagaTransactionId: UUID, materialId: UUID, quantity: Int)
 
     /** Soma das movimentacoes RESERVED da ordem, por material. */
     fun reservedMaterials(orderId: UUID): List<MaterialQuantity>

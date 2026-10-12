@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import tools.jackson.databind.json.JsonMapper
+import tools.jackson.databind.node.ObjectNode
 import java.time.Instant
 import java.util.UUID
 
@@ -33,5 +34,19 @@ class JdbcOutboxPublisher(private val jdbc: JdbcTemplate, private val json: Json
             body,
         )
         return body
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    override fun republish(payload: String) {
+        val envelope = json.readTree(payload) as ObjectNode
+        val eventId = UUID.randomUUID()
+        envelope.put("eventId", eventId.toString())
+        jdbc.update(
+            "INSERT INTO outbox_events (event_id, aggregate_id, event_type, payload) VALUES (?, ?, ?, ?::jsonb)",
+            eventId,
+            UUID.fromString(envelope.get("orderId").asString()),
+            envelope.get("type").asString(),
+            json.writeValueAsString(envelope),
+        )
     }
 }

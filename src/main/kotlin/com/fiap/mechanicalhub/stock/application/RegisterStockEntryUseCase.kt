@@ -2,7 +2,6 @@ package com.fiap.mechanicalhub.stock.application
 
 import com.fiap.mechanicalhub.stock.domain.StockMovementTypeEnum
 import com.fiap.mechanicalhub.stock.domain.StockStatusEnum
-import com.fiap.mechanicalhub.stock.domain.resolvePendingItems
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.security.MessageDigest
@@ -17,7 +16,7 @@ class RegisterStockEntryUseCase(
     private val stock: StockRepository,
     private val locks: StockLocks,
     private val idempotency: IdempotencyStore,
-    private val outbox: OutboxPublisher,
+    private val resolver: PendingItemsResolver,
 ) {
     @Transactional
     fun execute(command: RegisterStockEntryCommand): RegisterStockEntryOutcome {
@@ -40,35 +39,12 @@ class RegisterStockEntryUseCase(
         stock.addQuantity(command.materialId, StockStatusEnum.AVAILABLE, command.quantity)
         stock.recordMovement(command.materialId, null, StockMovementTypeEnum.ENTRY, command.quantity)
 
-        val resolution =
-            resolvePendingItems(
-                stock.pendingItems(command.materialId),
-                stock.quantity(command.materialId, StockStatusEnum.AVAILABLE),
-            )
-        val completedOrders = mutableListOf<UUID>()
-        resolution.resolutions.forEach { item ->
-            val orderId = item.item.orderId
-            locks.lockOrder(orderId)
-            stock.addQuantity(command.materialId, StockStatusEnum.AVAILABLE, -item.reserved)
-            stock.addQuantity(command.materialId, StockStatusEnum.RESERVED, item.reserved)
-            stock.recordMovement(command.materialId, orderId, StockMovementTypeEnum.RESERVED, item.reserved)
-            if (item.resolved) {
-                stock.deletePendingItem(item.item.id)
-                if (locks.countPendingItems(orderId) == 0) {
-                    completedOrders += orderId
-                    outbox.publish(
-                        StockReserved(item.item.sagaTransactionId, orderId, stock.reservedMaterials(orderId)),
-                    )
-                }
-            } else {
-                stock.reducePendingItem(item.item.id, item.remaining)
-            }
-        }
+        val resolution = resolver.resolve(command.materialId)
         return StockEntryResult(
             materialId = command.materialId,
             quantity = command.quantity,
             available = resolution.availableAfter,
-            reservedOrderIds = completedOrders.distinct(),
+            reservedOrderIds = resolution.completedOrders,
         )
     }
 

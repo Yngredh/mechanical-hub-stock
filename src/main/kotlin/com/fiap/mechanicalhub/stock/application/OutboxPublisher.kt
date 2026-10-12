@@ -39,4 +39,7 @@ data class StockRestored(override val transactionId: UUID, override val orderId:
 interface OutboxPublisher {
     /** Retorna o envelope JSON gravado (util para guardar como response_payload no inbox). */
     fun publish(event: StockEvent): String
+
+    /** Regrava no outbox uma resposta ja publicada (reentrega de comando duplicado), com novo eventId. */
+    fun republish(payload: String)
 }

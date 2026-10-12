@@ -16,6 +16,7 @@ stock:
   queues:
     commands: ${STOCK_COMMANDS_QUEUE_URL:mechanical-hub-stock-commands.fifo}
     orchestrator-events: ${ORCHESTRATOR_EVENTS_QUEUE_URL:mechanical-hub-orchestrator-events.fifo}
+    commands-dlq: ${STOCK_COMMANDS_DLQ_URL:mechanical-hub-stock-commands-dlq.fifo}
   outbox:
     relay:
       enabled: ${OUTBOX_RELAY_ENABLED:true}

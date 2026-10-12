@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository
 import java.util.UUID
 
 @Repository
+@Suppress("TooManyFunctions")
 class JdbcStockRepository(private val jdbc: JdbcTemplate) : StockRepository {
     override fun materialExists(materialId: UUID): Boolean =
         jdbc.queryForObject(
@@ -81,6 +82,29 @@ class JdbcStockRepository(private val jdbc: JdbcTemplate) : StockRepository {
 
     override fun deletePendingItem(itemId: UUID) {
         jdbc.update("DELETE FROM stock_pending_items WHERE id = ?", itemId)
+    }
+
+    override fun requiredMaterials(repairIds: Collection<UUID>): List<MaterialQuantity> =
+        if (repairIds.isEmpty()) {
+            emptyList()
+        } else {
+            jdbc
+                .query(
+                    "SELECT material_id, quantity FROM service_materials WHERE service_id = ANY (?)",
+                    { rs, _ -> MaterialQuantity(rs.getObject("material_id", UUID::class.java), rs.getInt("quantity")) },
+                    repairIds.toTypedArray(),
+                ).sumByMaterial()
+        }
+
+    override fun insertPendingItem(orderId: UUID, sagaTransactionId: UUID, materialId: UUID, quantity: Int) {
+        jdbc.update(
+            "INSERT INTO stock_pending_items (service_order_id, saga_transaction_id, material_id, quantity) " +
+                "VALUES (?, ?, ?, ?)",
+            orderId,
+            sagaTransactionId,
+            materialId,
+            quantity,
+        )
     }
 
     override fun balances(): List<MaterialBalance> =
