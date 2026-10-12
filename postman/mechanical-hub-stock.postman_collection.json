@@ -1,0 +1,51 @@
+{
+  "info": {
+    "name": "mechanical-hub-stock",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "materialId", "value": "99370d9f-1cbc-468d-8043-94588108b7c2" }
+  ],
+  "item": [
+    {
+      "name": "Registrar entrada de material",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Idempotency-Key", "value": "{{$guid}}" },
+          { "key": "x-user-id", "value": "00000000-0000-0000-0000-000000000001" },
+          { "key": "x-user-role", "value": "ADMIN" },
+          { "key": "x-user-name", "value": "admin" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"materialId\": \"{{materialId}}\",\n  \"quantity\": 10\n}" },
+        "url": "{{baseUrl}}/stock/entry"
+      }
+    },
+    {
+      "name": "Saldo por material",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-user-id", "value": "00000000-0000-0000-0000-000000000001" },
+          { "key": "x-user-role", "value": "ADMIN" },
+          { "key": "x-user-name", "value": "admin" }
+        ],
+        "url": "{{baseUrl}}/stock"
+      }
+    },
+    {
+      "name": "Movimentacoes do material",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-user-id", "value": "00000000-0000-0000-0000-000000000001" },
+          { "key": "x-user-role", "value": "ADMIN" },
+          { "key": "x-user-name", "value": "admin" }
+        ],
+        "url": "{{baseUrl}}/stock/{{materialId}}/movements"
+      }
+    }
+  ]
+}
