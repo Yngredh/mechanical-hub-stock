@@ -178,6 +178,20 @@ class StockCommandProcessorTests {
     }
 
     @Test
+    fun `given a duplicated consume when processing then the write-off happens once`() {
+        val a = material(10, 4)
+        val order = UUID.randomUUID()
+        val command = materialsCommand("consumeStock", "CONSUME_STOCK", order, UUID.randomUUID(), a to 3)
+
+        assertEquals(CommandOutcome.PROCESSED, processor.process(command))
+        assertEquals(CommandOutcome.DUPLICATE, processor.process(command))
+
+        assertEquals(1, qty(a, "RESERVED"))
+        assertEquals(10, qty(a, "AVAILABLE"))
+        assertEquals(listOf("stockConsumed", "stockConsumed"), events(order))
+    }
+
+    @Test
     fun `given insufficient RESERVED when consuming or restoring then it fails permanently and changes nothing`() {
         val a = material(10, 1)
         val order = UUID.randomUUID()
