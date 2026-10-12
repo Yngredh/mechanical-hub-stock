@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: mechanical-hub-stock
+  cloud:
+    aws:
+      region:
+        static: ${AWS_REGION:us-east-1}
