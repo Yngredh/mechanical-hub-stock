@@ -107,6 +107,10 @@ class JdbcStockRepository(private val jdbc: JdbcTemplate) : StockRepository {
         )
     }
 
+    override fun materialName(materialId: UUID): String =
+        jdbc.queryForObject("SELECT name FROM materials WHERE id = ?", String::class.java, materialId)
+            ?: materialId.toString()
+
     override fun balances(): List<MaterialBalance> =
         jdbc.query(
             """

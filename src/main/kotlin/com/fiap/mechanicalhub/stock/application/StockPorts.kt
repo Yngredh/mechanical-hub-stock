@@ -44,6 +44,8 @@ interface StockRepository {
 
     fun balances(): List<MaterialBalance>
 
+    fun materialName(materialId: UUID): String
+
     fun movements(materialId: UUID): List<StockMovementView>
 }
 
@@ -69,3 +71,11 @@ class MaterialNotFoundException(val materialId: UUID) : RuntimeException("Materi
 
 class IdempotencyKeyReusedException(key: String) :
     RuntimeException("Idempotency-Key $key ja foi usada com outro corpo")
+
+/** Material faltante de uma reserva e a quantidade que ficou pendente. */
+data class ShortageItem(val materialId: UUID, val materialName: String, val missingQuantity: Int)
+
+/** Porta de notificacao dos administradores do estoque. */
+fun interface StockShortageNotifier {
+    fun notifyShortage(orderId: UUID, transactionId: UUID, shortages: List<ShortageItem>)
+}
