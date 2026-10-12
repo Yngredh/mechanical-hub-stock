@@ -25,6 +25,7 @@
         <!-- Serie 9 = Logback 1.5, que e o que o Boot 4.1 traz. -->
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <awaitility.version>4.3.0</awaitility.version>
+        <opentelemetry-javaagent.version>2.31.1</opentelemetry-javaagent.version>
         <mockk.version>1.14.11</mockk.version>
 
         <!-- Mesma configuracao do monolito; versoes atualizadas para Java 25
@@ -242,6 +243,30 @@
                         <version>${kotlin.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-opentelemetry-javaagent</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>io.opentelemetry.javaagent</groupId>
+                                    <artifactId>opentelemetry-javaagent</artifactId>
+                                    <version>${opentelemetry-javaagent.version}</version>
+                                    <destFileName>opentelemetry-javaagent.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/otel</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
