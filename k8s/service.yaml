@@ -1,0 +1,20 @@
+# NodePort fixa 30081: mesmo valor do target group/listener do stock no NLB
+# interno (variavel `services` do mechanical-hub-infra). Mudar aqui exige mudar
+# la junto.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mechanical-hub-stock-svc
+  namespace: production
+  labels:
+    app: mechanical-hub-stock
+    app.kubernetes.io/name: stock
+spec:
+  type: NodePort
+  selector:
+    app: mechanical-hub-stock
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      nodePort: 30081
