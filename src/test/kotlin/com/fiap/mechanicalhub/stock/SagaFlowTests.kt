@@ -4,6 +4,7 @@ import com.fiap.mechanicalhub.stock.application.RegisterStockEntryCommand
 import com.fiap.mechanicalhub.stock.application.RegisterStockEntryUseCase
 import com.fiap.mechanicalhub.stock.application.StockCommandProcessor
 import com.fiap.mechanicalhub.stock.infrastructure.StockCommandParser
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -13,6 +14,7 @@ import java.util.UUID
 import kotlin.test.assertEquals
 
 /** Fluxos da saga vistos pelo estoque, com os comandos que o orquestrador envia. */
+@Tag("integration")
 @Import(TestcontainersConfiguration::class)
 @SpringBootTest
 class SagaFlowTests {

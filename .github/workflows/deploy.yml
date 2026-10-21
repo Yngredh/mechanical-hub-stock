@@ -48,9 +48,10 @@ jobs:
 
       # Testes unitarios e de integracao (PostgreSQL e LocalStack em
       # Testcontainers, no Docker do runner), ktlint, detekt e
-      # jacoco:check (cobertura minima de 80%).
+      # jacoco:check (cobertura minima de 80%). Sem o profile, o verify
+      # roda so os testes unitarios (build local sem Docker).
       - name: Verify
-        run: ./mvnw -B --no-transfer-progress verify
+        run: ./mvnw -B --no-transfer-progress verify -Pintegration-tests
 
       - name: SonarQube Cloud
         env:

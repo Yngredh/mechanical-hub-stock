@@ -1,5 +1,6 @@
 package com.fiap.mechanicalhub.stock
 
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -7,6 +8,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.jdbc.core.JdbcTemplate
 import kotlin.test.assertEquals
 
+@Tag("integration")
 @Import(TestcontainersConfiguration::class)
 @SpringBootTest
 class DatabaseMigrationTests {

@@ -7,6 +7,7 @@ import io.awspring.cloud.sqs.operations.SqsTemplate
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -27,6 +28,7 @@ import javax.sql.DataSource
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
+@Tag("integration")
 @Import(TestcontainersConfiguration::class)
 @SpringBootTest
 class OutboxRelayTests {
