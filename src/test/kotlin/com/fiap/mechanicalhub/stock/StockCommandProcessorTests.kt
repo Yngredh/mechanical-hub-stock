@@ -6,6 +6,7 @@ import com.fiap.mechanicalhub.stock.application.StockCommandProcessor
 import com.fiap.mechanicalhub.stock.infrastructure.RetentionJobs
 import com.fiap.mechanicalhub.stock.infrastructure.StockCommandParser
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -16,6 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 
+@Tag("integration")
 @Import(TestcontainersConfiguration::class)
 @SpringBootTest
 class StockCommandProcessorTests {

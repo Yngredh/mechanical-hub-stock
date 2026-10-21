@@ -2,6 +2,7 @@ package com.fiap.mechanicalhub.stock
 
 import com.fiap.mechanicalhub.stock.infrastructure.StockMetrics
 import io.micrometer.core.instrument.MeterRegistry
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -11,6 +12,7 @@ import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@Tag("integration")
 @Import(TestcontainersConfiguration::class)
 @SpringBootTest
 class StockMetricsTests {

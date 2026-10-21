@@ -31,11 +31,12 @@ Collection Postman: [`postman/mechanical-hub-stock.postman_collection.json`](pos
 ```bash
 docker compose up -d          # PostgreSQL e LocalStack (filas SQS)
 ./mvnw spring-boot:run        # Flyway aplica migrations e seeds
-./mvnw -q verify              # testes (Testcontainers), detekt e cobertura
+./mvnw -q verify              # build + testes unitarios, ktlint e detekt (nao precisa de Docker)
+./mvnw -q verify -Pintegration-tests   # + testes de integracao (Testcontainers, exige Docker) e cobertura
 ```
 
 Variáveis principais: `DB_NAME`, `DB_USER`, `DB_PASSWORD` (ver `compose.yaml` e `src/main/resources/application.yml`). Deploy: `Dockerfile`, `k8s/` e pipeline em `ci/`.
 
 ## Testes e cobertura
 
-Unitários, integração (Testcontainers PostgreSQL), concorrência e fluxos da saga (`SagaFlowTests`: caminho feliz, pendência resolvida por entrada, recusa e pagamento não confirmado com redistribuição). O JaCoCo exige cobertura mínima de 80% no `verify`; o relatório fica em `target/site/jacoco/index.html` e é enviado ao SonarQube Cloud.
+Unitários, integração (Testcontainers PostgreSQL), concorrência e fluxos da saga (`SagaFlowTests`: caminho feliz, pendência resolvida por entrada, recusa e pagamento não confirmado com redistribuição). Os testes de integração são marcados com `@Tag("integration")` e só rodam com o profile `integration-tests` (o CI sempre usa). O JaCoCo exige cobertura mínima de 80% nesse profile; o relatório fica em `target/site/jacoco/index.html` e é enviado ao SonarQube Cloud.

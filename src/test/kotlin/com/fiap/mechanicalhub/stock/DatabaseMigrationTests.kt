@@ -1,5 +1,6 @@
 package com.fiap.mechanicalhub.stock
 
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -7,8 +8,14 @@ import org.springframework.context.annotation.Import
 import org.springframework.jdbc.core.JdbcTemplate
 import kotlin.test.assertEquals
 
+// As outras classes de integracao compartilham o mesmo contexto Spring (cacheado)
+// e, com ele, o mesmo container PostgreSQL, onde gravam dados. Esta classe confere
+// o estado logo apos as migrations, entao precisa de um banco limpo: a property
+// distinta gera um contexto proprio e, portanto, um container novo, independente
+// da ordem em que o Surefire executa as classes.
+@Tag("integration")
 @Import(TestcontainersConfiguration::class)
-@SpringBootTest
+@SpringBootTest(properties = ["stock.test.context=database-migration"])
 class DatabaseMigrationTests {
     @Autowired
     private lateinit var jdbc: JdbcTemplate

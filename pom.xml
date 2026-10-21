@@ -35,6 +35,11 @@
         <ktlint-maven-plugin.version>3.7.1</ktlint-maven-plugin.version>
         <detekt-maven-plugin.version>1.23.8</detekt-maven-plugin.version>
 
+        <!-- O build padrao (mvn verify) roda so os testes sem dependencia externa.
+             Os testes com @Tag("integration") sobem PostgreSQL e LocalStack via
+             Testcontainers e exigem Docker: rodam com -Pintegration-tests (CI). -->
+        <test.excludedGroups>integration</test.excludedGroups>
+
         <sonar.projectKey>mechanical-hub-stock</sonar.projectKey>
         <sonar.java.binaries>target/classes</sonar.java.binaries>
         <sonar.sources>src/main/kotlin</sonar.sources>
@@ -269,6 +274,13 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludedGroups>${test.excludedGroups}</excludedGroups>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.version}</version>
@@ -293,27 +305,6 @@
                                 <exclude>**/exceptions/**</exclude>
                                 <exclude>**/MechanicalHubStockApplication*.class</exclude>
                             </excludes>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>check</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <rule>
-                                    <element>BUNDLE</element>
-                                    <limits>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.80</minimum>
-                                        </limit>
-                                    </limits>
-                                </rule>
-                            </rules>
                         </configuration>
                     </execution>
                 </executions>
@@ -358,5 +349,49 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Testes de integracao (Testcontainers: PostgreSQL e LocalStack) e o
+             gate de cobertura minima de 80%, que so faz sentido com a suite
+             completa. Exige Docker. Uso: ./mvnw verify -Pintegration-tests -->
+        <profile>
+            <id>integration-tests</id>
+            <properties>
+                <test.excludedGroups></test.excludedGroups>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${jacoco.version}</version>
+                        <executions>
+                            <execution>
+                                <id>check</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <rule>
+                                            <element>BUNDLE</element>
+                                            <limits>
+                                                <limit>
+                                                    <counter>LINE</counter>
+                                                    <value>COVEREDRATIO</value>
+                                                    <minimum>0.80</minimum>
+                                                </limit>
+                                            </limits>
+                                        </rule>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

@@ -5,6 +5,7 @@ import com.fiap.mechanicalhub.stock.application.StockCommandProcessor
 import com.fiap.mechanicalhub.stock.application.StockShortageNotifier
 import com.fiap.mechanicalhub.stock.infrastructure.StockCommandParser
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -18,6 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@Tag("integration")
 @Import(TestcontainersConfiguration::class, StockShortageAlertTests.RecordingConfig::class)
 @SpringBootTest
 class StockShortageAlertTests {
