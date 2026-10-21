@@ -24,7 +24,8 @@ echo "-> GET /stock"
 stock="$(curl -fsS --max-time 10 \
   -H "x-user-id: $ADMIN_ID" -H "x-user-role: ADMIN" -H "x-user-name: Smoke Test" \
   "$BASE_URL/stock")" || fail "GET /stock nao retornou 2xx"
-grep -q 'AVAILABLE' <<< "$stock" || fail "saldo sem registros AVAILABLE das seeds: $stock"
+grep -q '"available":' <<< "$stock" || fail "saldo sem o campo available: $stock"
+grep -q 'eeff1111-1111-1111-1111-000000000001' <<< "$stock" || fail "saldo sem o material das seeds (Vela de Ignicao): $stock"
 
 echo "-> POST /stock/entry sem Idempotency-Key"
 code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -X POST \
